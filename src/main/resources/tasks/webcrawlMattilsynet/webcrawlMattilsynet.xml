@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<task>
+	<description>Collect</description>
+	<form>
+		<input name="collectionId" type="TextLine">
+			<label>Collection ID</label>
+			<occurrences minimum="0" maximum="1"/>
+			<!-- TODO Make mandatory IN lib-explorer-5.0.0/app-explorer-3.0.0 This can be fetched from name -->
+		</input>
+		<input name="collectorId" type="TextLine">
+			<label>Collector ID</label>
+			<occurrences minimum="1" maximum="1"/>
+		</input>
+		<input name="configJson" type="TextLine">
+			<label>Config JSON</label>
+			<occurrences minimum="1" maximum="1"/>
+		</input>
+		<input name="language" type="TextLine">
+			<label>Language</label>
+			<occurrences minimum="0" maximum="1"/>
+		</input>
+
+		<!-- DEPRECATED IN lib-explorer-4.0.0/app-explorer-2.0.0 This can be fetched from collectionId -->
+		<!-- TODO Remove IN lib-explorer-5.0.0/app-explorer-3.0.0 This can be fetched from collectionId -->
+		<input name="name" type="TextLine">
+			<label>Name</label>
+			<occurrences minimum="0" maximum="1"/>
+		</input>
+	</form>
+</task>

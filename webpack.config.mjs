@@ -631,7 +631,8 @@ const CLIENT_ES_CONFIG = {
 	devtool: MODE === 'production' ? false : 'eval-source-map', // https://webpack.js.org/configuration/devtool/#devtool
 	entry: {
 		'Explorer': './App.tsx',
-		'WebCrawler': './WebCrawler.tsx'
+		'WebCrawler': './WebCrawler.tsx',
+		'WebCrawlerMattilsynet': './WebCrawlerMattilsynet.tsx'
 	},
 	externals: CS_EXTERNALS,
 	mode: MODE,
