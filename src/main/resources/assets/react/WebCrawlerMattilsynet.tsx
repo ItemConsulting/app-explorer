@@ -23,7 +23,7 @@ import {useWebCrawlerState} from './useWebCrawlerState';
 const DEFAULT_UA = 'Mozilla/5.0 (compatible; Enonic XP Explorer Collector Web crawler/1.0.0)';
 
 
-export const Collector = React.forwardRef(({
+export const MTCollector = React.forwardRef(({
 	collectorConfig,
 	//explorer,
 	setCollectorConfig,
@@ -136,4 +136,4 @@ export const Collector = React.forwardRef(({
 		/>
 	</Form>;
 }); // Collector
-Collector.displayName = 'Collector';
+MTCollector.displayName = 'MTCollector';

@@ -6,7 +6,7 @@
 		"taskName": "webcrawl"
 	},
 	{
-		"componentPath": "window.LibWebCrawlerMattilsynet.Collector",
+		"componentPath": "window.LibWebCrawlerMattilsynet.MTCollector",
 		"configAssetPath": "react/WebCrawlerMattilsynet.esm.js",
 		"displayName": "Web crawler for mattilsynet.no",
 		"taskName": "webcrawlMattilsynet"
