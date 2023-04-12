@@ -1,6 +1,14 @@
-[{
-	"componentPath": "window.LibWebCrawler.Collector",
-	"configAssetPath": "react/WebCrawler.esm.js",
-	"displayName": "Web crawler",
-	"taskName": "webcrawl"
-}]
+[
+	{
+		"componentPath": "window.LibWebCrawler.Collector",
+		"configAssetPath": "react/WebCrawler.esm.js",
+		"displayName": "Web crawler",
+		"taskName": "webcrawl"
+	},
+	{
+		"componentPath": "window.LibWebCrawlerMattilsynet.Collector",
+		"configAssetPath": "react/WebCrawlerMattilsynet.esm.js",
+		"displayName": "Web crawler for mattilsynet.no",
+		"taskName": "webcrawlMattilsynet"
+	}
+]
