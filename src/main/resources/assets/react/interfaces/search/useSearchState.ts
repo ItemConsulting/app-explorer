@@ -159,7 +159,7 @@ export function useSearchState({
 			method: 'POST',
 			headers: { // HTTP/2 uses lowercase header keys
 				'content-type':	'application/json',
-				[HTTP_HEADERS.EXPLORER_INTERFACE_NAME]: interfaceNameState,
+				[HTTP_HEADERS.EXPLORER_INTERFACE_NAME.toLowerCase()]: interfaceNameState,
 			},
 			body: JSON.stringify(gql.query({
 				operation: 'interface',
