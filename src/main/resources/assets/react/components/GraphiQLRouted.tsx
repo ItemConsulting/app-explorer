@@ -13,7 +13,7 @@ function GraphiQLRouted({
 }) {
 	return <GraphiQL
 		headers={{
-			[HTTP_HEADERS.EXPLORER_INTERFACE_NAME]: interfaceNameState
+			[HTTP_HEADERS.EXPLORER_INTERFACE_NAME.toLowerCase()]: interfaceNameState
 		}}
 		searchString={searchString}
 		url={`${basename}/api/v1/interface`}

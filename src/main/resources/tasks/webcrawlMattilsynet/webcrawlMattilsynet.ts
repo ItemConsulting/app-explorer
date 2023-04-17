@@ -142,6 +142,25 @@ const remove = (
 	});
 }
 
+const removeMattilsynetSpecificElements = (cleanedBodyEl: Cheerio<AnyNode>) => {
+	log.debug("removeMattilsynetSpesificElements");
+	const elsToRemove = querySelectorAll(cleanedBodyEl, 'header');
+	elsToRemove.push(querySelector(cleanedBodyEl, '.visually-hidden-focusable'));
+	elsToRemove.push(querySelector(cleanedBodyEl, '.breadcrumbs'));
+
+	// Remove for old site
+	elsToRemove.push(querySelector(cleanedBodyEl, '#header'))
+	elsToRemove.push(querySelector(cleanedBodyEl, '#footer'))
+	elsToRemove.push(querySelector(cleanedBodyEl, '#articleInfoBar'))
+	elsToRemove.push(querySelector(cleanedBodyEl, '#kontakt_oss'))
+	elsToRemove.push(querySelector(cleanedBodyEl, '#contactSubmitBoxContainer'))
+	elsToRemove.forEach((elToRemove) => {
+		// log.info('Removing outerHTML:%s', pretty(outerHTML(elToRemove)));
+		log.debug("removing: %s", getText(elToRemove))
+		elToRemove.remove();
+	});
+
+}
 
 const removeDisplayNoneAndVisibilityHidden = (
 	node :Cheerio<AnyNode>
@@ -194,10 +213,10 @@ function getText(node: Cheerio<AnyNode>) {
 		.prop('innerHTML')
  		//.replaceAll(/<\/?[a-zA-Z0-9=" ]*>/g, ' ') // This doesn't handle <!-- --> and more
 		// How to handle tags inside comments... <!-- <div></div> -->
-		.replace(/<\/?[^>]+>/g, REPLACEMENT)
+		?.replace(/<\/?[^>]+>/g, REPLACEMENT)
 		//.replace(/\s\s+/g, ' ') // This will replace newlines, tabs etc...
-		.replace(REPLACE_ALL_REPLACEMENT_REGEXP, ' ')
-		.trim();
+		?.replace(REPLACE_ALL_REPLACEMENT_REGEXP, ' ')
+		?.trim();
 }
 
 export function run({
@@ -433,7 +452,7 @@ export function run({
 				const titleEl = querySelector(headEl, 'title');
 				// log.debug(`titleEl:${toStr(titleEl)}`); // JSON.stringify got a cyclic data structure
 
-				const title = titleEl ? getText(titleEl) : '';
+				const title = titleEl ? getText(titleEl).split('|')[0].trim() : '';
 				DEBUG && log.debug(`title:${toStr(title)}`);
 
 				const bodyElWithNothingRemoved = querySelector(rootNode, 'body');
@@ -463,6 +482,8 @@ export function run({
 
 				remove(cleanedBodyEl, '[aria-hidden=true]');
 				remove(cleanedBodyEl, '[hidden]');
+
+				removeMattilsynetSpecificElements(cleanedBodyEl);
 
 				// log.debug(`cleanedBodyEl:${toStr(cleanedBodyEl)}`); // JSON.stringify got a cyclic data structure
 				// log.debug(safeStringify({body: body.html()}));
