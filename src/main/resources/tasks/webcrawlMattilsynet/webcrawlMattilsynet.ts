@@ -1,8 +1,10 @@
 import type {
 	AnyNode,
 	Cheerio,
-	SelectorType
+	SelectorType,
+	Document
 } from 'cheerio';
+
 import type {
 	HttpClientRequest,
 	Response
@@ -190,7 +192,7 @@ const outerHTML = (node: Cheerio<AnyNode>) => node.clone().wrap('<div>').parent(
 
 const REPLACEMENT = '&#129'; // HOP illegal in html :)
 const REPLACE_ALL_REPLACEMENT_REGEXP = new RegExp(`${REPLACEMENT}+`, 'g');
-function getText(node: Cheerio<AnyNode>) {
+function getText(node?: Cheerio<AnyNode>): string | undefined {
 	// Note that while textContent gets the content of all elements, including <script> and <style> elements, innerText, doesn't.
 	// innerText is also aware of style and will not return the text of hidden elements, whereas textContent will.
 	// log.info('textContent:%s', node.prop('textContent'));
@@ -200,13 +202,75 @@ function getText(node: Cheerio<AnyNode>) {
  	return node
  		// .text() // No whitespace bewteen elements :(
 		// .html() // is this the same as innerHTML or outerHTML ?
-		.prop('innerHTML')
+		?.prop('innerHTML')
  		//.replaceAll(/<\/?[a-zA-Z0-9=" ]*>/g, ' ') // This doesn't handle <!-- --> and more
 		// How to handle tags inside comments... <!-- <div></div> -->
 		?.replace(/<\/?[^>]+>/g, REPLACEMENT)
 		//.replace(/\s\s+/g, ' ') // This will replace newlines, tabs etc...
 		?.replace(REPLACE_ALL_REPLACEMENT_REGEXP, ' ')
 		?.trim();
+}
+
+const extractMattilsynetDocumentToPersist = (
+	rootNode: Cheerio<Document>,
+	excludeSelectors: Array<string>,
+	links: Array<string>, url: string
+): MattilsynetWebpageDocument => {
+	const headEl = querySelector(rootNode, 'head');
+	const title = getText(querySelector(headEl, 'title'))?.split('|')[0].trim() ?? '';
+	DEBUG && log.debug(`title:${toStr(title)}`);
+
+	const bodyElWithNothingRemoved = querySelector(rootNode, 'body');
+	const cleanedBodyEl = bodyElWithNothingRemoved.clone();
+	// Remove all elements except tags and text
+	cleanedBodyEl.find('*').contents().filter(
+		(_i, el) => !(
+			el.type === ElementType.Tag
+			|| el.type === ElementType.Text
+		)
+	).remove();
+
+	remove(cleanedBodyEl, 'header');
+	remove(cleanedBodyEl, '#header');
+	remove(cleanedBodyEl, 'footer');
+	remove(cleanedBodyEl, '#footer');
+
+	remove(cleanedBodyEl, 'noscript'); // This works
+	remove(cleanedBodyEl, 'script');
+
+	removeDisplayNoneAndVisibilityHidden(cleanedBodyEl);
+	remove(cleanedBodyEl, '[aria-hidden=true]');
+	remove(cleanedBodyEl, '[hidden]');
+
+	const cleanedBodyBeforeMattilsynetSpecificElements = cleanedBodyEl.clone();
+	removeMattilsynetSpecificElements(cleanedBodyEl, excludeSelectors);
+	return {
+		// displayName: title, // This has no field definition by default
+		links,
+		text: getText(cleanedBodyEl),
+		title,
+		url,
+		headers: {
+			h1: querySelectorAll(cleanedBodyBeforeMattilsynetSpecificElements, 'h1').map(el => getText(el)),
+			h2: querySelectorAll(cleanedBodyBeforeMattilsynetSpecificElements, 'h2').map(el => getText(el)),
+		},
+		intro: getText(querySelector(cleanedBodyBeforeMattilsynetSpecificElements, '.intro'))
+	};
+};
+
+type MattilsynetWebpageDocument = {
+	// displayName :string
+	links?: string[]
+	text: string
+	title: string
+	url: string
+	_id?: string
+	html?: string
+	headers: {
+		h1?: string[]
+		h2?: string[]
+	}
+	intro?: string
 }
 
 export function run({
@@ -441,45 +505,7 @@ export function run({
 				DEBUG && log.debug(`boolFollow:${toStr(boolFollow)}`);
 				DEBUG && log.debug(`boolIndex:${toStr(boolIndex)}`);
 
-				const titleEl = querySelector(headEl, 'title');
-				// log.debug(`titleEl:${toStr(titleEl)}`); // JSON.stringify got a cyclic data structure
-
-				const title = titleEl ? getText(titleEl).split('|')[0].trim() : '';
-				DEBUG && log.debug(`title:${toStr(title)}`);
-
 				const bodyElWithNothingRemoved = querySelector(rootNode, 'body');
-				const cleanedBodyEl = bodyElWithNothingRemoved.clone();
-
-				// Remove all elements except tags and text
-				cleanedBodyEl.find('*').contents().filter(
-					(_i, el) => !(
-						el.type === ElementType.Tag
-						|| el.type === ElementType.Text
-					)
-				).remove();
-
-				remove(cleanedBodyEl, 'aside');
-				remove(cleanedBodyEl, 'footer');
-				remove(cleanedBodyEl, 'noscript'); // This works
-				remove(cleanedBodyEl, 'nav');
-				remove(cleanedBodyEl, 'script');
-
-				// It seems Cheerio doesn't support *= selectors
-				// remove(cleanedBodyEl, '[style*="display:none"]');
-				// remove(cleanedBodyEl, '[style*="display: none"]');
-				// remove(cleanedBodyEl, '[style*="visibility:hidden"]');
-				// remove(cleanedBodyEl, '[style*="visibility: hidden"]');
-				removeDisplayNoneAndVisibilityHidden(cleanedBodyEl);
-				// throw new Error('DEBUG');
-
-				remove(cleanedBodyEl, '[aria-hidden=true]');
-				remove(cleanedBodyEl, '[hidden]');
-
-				removeMattilsynetSpecificElements(cleanedBodyEl, excludeSelectors);
-
-				// log.debug(`cleanedBodyEl:${toStr(cleanedBodyEl)}`); // JSON.stringify got a cyclic data structure
-				// log.debug(safeStringify({body: body.html()}));
-
 				const links = [];
 				if (boolFollow) {
 					const linkEls = querySelectorAll(bodyElWithNothingRemoved, "a[href]:not([href^='#']):not([href^='mailto:']):not([href^='tel:']):not([href^='content:'])");
@@ -552,21 +578,7 @@ export function run({
 				} // boolFollow
 
 				if (boolIndex && (!robots || robots.isIndexable('', url))) {
-					const documentToPersist :{
-						// displayName :string
-						links?: string[]
-						text: string
-						title: string
-						url: string
-						_id?: string
-						html?: string
-					} = {
-						// displayName: title, // This has no field definition by default
-						links,
-						text: getText(cleanedBodyEl),
-						title,
-						url,
-					};
+					const documentToPersist: MattilsynetWebpageDocument = extractMattilsynetDocumentToPersist(rootNode, excludeSelectors, links, url)
 					if (keepHtml) {
 						documentToPersist.html = res.body;
 					}
@@ -613,7 +625,7 @@ export function run({
 					const persistedDocument = collector.persistDocument(
 						documentToPersist, {
 							// Must be identical to a _name in src/main/resources/documentTypes.json
-							documentTypeName: 'webpage'
+							documentTypeName: 'mattilsynet_webpage'
 						}
 					);
 					DEBUG && log.debug('persistedDocument:%s', toStr(persistedDocument));

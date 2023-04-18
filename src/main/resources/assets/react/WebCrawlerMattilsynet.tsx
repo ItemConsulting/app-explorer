@@ -125,7 +125,7 @@ export const Collector = React.forwardRef(({
 		}
 		{excludeSelectorsArray && Array.isArray(excludeSelectorsArray) && excludeSelectorsArray.length
 			? <>
-				<Header as='h4' content='Exclude html elements with CSS-selectors' dividing/>
+				<Header as='h4' content='Exclude html elements from &apos;text&apos; field with CSS-selectors' dividing/>
 				<Table celled compact selectable striped>
 					<Table.Header>
 						<Table.Row>
