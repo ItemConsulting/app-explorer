@@ -142,24 +142,14 @@ const remove = (
 	});
 }
 
-const removeMattilsynetSpecificElements = (cleanedBodyEl: Cheerio<AnyNode>) => {
+const removeMattilsynetSpecificElements = (cleanedBodyEl: Cheerio<AnyNode>, excludeSelectors: Array<string>) => {
 	log.debug("removeMattilsynetSpesificElements");
-	const elsToRemove = querySelectorAll(cleanedBodyEl, 'header');
-	elsToRemove.push(querySelector(cleanedBodyEl, '.visually-hidden-focusable'));
-	elsToRemove.push(querySelector(cleanedBodyEl, '.breadcrumbs'));
-
-	// Remove for old site
-	elsToRemove.push(querySelector(cleanedBodyEl, '#header'))
-	elsToRemove.push(querySelector(cleanedBodyEl, '#footer'))
-	elsToRemove.push(querySelector(cleanedBodyEl, '#articleInfoBar'))
-	elsToRemove.push(querySelector(cleanedBodyEl, '#kontakt_oss'))
-	elsToRemove.push(querySelector(cleanedBodyEl, '#contactSubmitBoxContainer'))
-	elsToRemove.forEach((elToRemove) => {
-		// log.info('Removing outerHTML:%s', pretty(outerHTML(elToRemove)));
-		log.debug("removing: %s", getText(elToRemove))
-		elToRemove.remove();
-	});
-
+	(excludeSelectors as Array<SelectorType>).forEach(selector => {
+		querySelectorAll(cleanedBodyEl, selector).forEach((elToRemove) => {
+			log.debug("removing element found by selector %s", selector)
+			elToRemove.remove();
+		});
+	})
 }
 
 const removeDisplayNoneAndVisibilityHidden = (
@@ -235,6 +225,7 @@ export function run({
 	const collector = new Collector<{
 		baseUri: string
 		excludes?: string[]
+		excludeSelectors?: string[]
 		keepHtml?: boolean
 		resume?: boolean
 		userAgent?: string
@@ -254,6 +245,7 @@ export function run({
 	const {
 		resume = false,
 		excludes = [],
+		excludeSelectors = [],
 		keepHtml = false,
 		userAgent = DEFAULT_UA
 	} = collector.config;
@@ -483,7 +475,7 @@ export function run({
 				remove(cleanedBodyEl, '[aria-hidden=true]');
 				remove(cleanedBodyEl, '[hidden]');
 
-				removeMattilsynetSpecificElements(cleanedBodyEl);
+				removeMattilsynetSpecificElements(cleanedBodyEl, excludeSelectors);
 
 				// log.debug(`cleanedBodyEl:${toStr(cleanedBodyEl)}`); // JSON.stringify got a cyclic data structure
 				// log.debug(safeStringify({body: body.html()}));
