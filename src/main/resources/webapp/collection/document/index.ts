@@ -30,7 +30,7 @@ import {coerceApiKey} from '../../../services/graphQL/apiKey/coerceApiKey';
 export type AllDocumentRequest = GetRequest & PostRequest & RemoveRequest;
 
 
-const AUTH_PREFIX = 'Explorer-Api-Key ';
+const AUTH_PREFIX = 'explorer-api-key ';
 
 
 export function all(

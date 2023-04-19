@@ -38,7 +38,7 @@ import {getCachedSchema} from '/lib/explorer/interface/graphql/getCachedSchema';
 export type InterfaceRequest = EnonicXpRequest<EmptyObject>
 
 
-const AUTHORIZATION_PREFIX = 'Explorer-Api-Key ';
+const AUTHORIZATION_PREFIX = 'explorer-api-key ';
 
 
 function isUnauthorized({
@@ -50,7 +50,7 @@ function isUnauthorized({
 }) {
 	//log.debug('isUnauthorized interfaceName:%s request:%s', interfaceName, toStr(request));
 	const {
-		 // HTTP/2 uses lowercase header keys
+		// HTTP/2 uses lowercase header keys
 		'authorization': authorization//, // 'Explorer-Api-Key XXXX
 	} = lcKeys(request.headers) as Headers;
 	//log.debug(`authorization:${toStr(authorization)}`);
