@@ -625,7 +625,7 @@ export function run({
 					const persistedDocument = collector.persistDocument(
 						documentToPersist, {
 							// Must be identical to a _name in src/main/resources/documentTypes.json
-							documentTypeName: 'mattilsynet_webpage'
+							documentTypeName: 'webpage'
 						}
 					);
 					DEBUG && log.debug('persistedDocument:%s', toStr(persistedDocument));
