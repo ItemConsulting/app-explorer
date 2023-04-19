@@ -48,17 +48,17 @@ export function all(
 	//log.info(`method:${toStr(method)}`);
 
 	if(!authorization) {
-		log.error(`Authorization header missing!`);
+		log.error(`authorization header missing!`);
 		return {status: 401}; // Unauthorized
 	}
 	if(!startsWith(authorization, AUTH_PREFIX)) {
-		log.error(`Invalid Authorization header:${authorization}!`);
+		log.error(`Invalid authorization header:${authorization}!`);
 		return { status: 401 }; // Unauthorized
 	}
 	const apiKey = authorization.substring(AUTH_PREFIX.length);
 	//log.debug(`apiKey:${toStr(apiKey)}`);
 	if (!apiKey) {
-		log.error(`ApiKey not found in Authorization header:${authorization}!`);
+		log.error(`ApiKey not found in authorization header:${authorization}!`);
 		return { status: 401 }; // Unauthorized
 	}
 	const hashedApiKey = hash(apiKey);
