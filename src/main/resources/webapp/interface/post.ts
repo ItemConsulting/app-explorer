@@ -24,12 +24,14 @@ import {connect} from '/lib/explorer/repo/connect';
 
 //import {generateSchemaForInterface} from './schemaWithLimitedDocumentTypes/generateSchemaForInterface';
 import {getCachedSchema} from '/lib/explorer/interface/graphql/getCachedSchema';
+import {toStr} from "/assets/react/utils/toStr";
+import {safelyGetHeader} from "../mattilsynetUtils";
 
 
 export type InterfaceRequest = EnonicXpRequest<EmptyObject>
 
 
-const AUTHORIZATION_PREFIX = 'Explorer-Api-Key ';
+const AUTHORIZATION_PREFIX = 'explorer-api-key ';
 
 
 function isUnauthorized({
@@ -40,24 +42,22 @@ function isUnauthorized({
 	request :EnonicXpRequest
 }) {
 	//log.debug('isUnauthorized interfaceName:%s request:%s', interfaceName, toStr(request));
-	const {
-		headers: {
-			'Authorization': authorization//, // 'Explorer-Api-Key XXXX
-		}
-	} = request;
+
+	const authorization = safelyGetHeader(request, 'authorization');
+
 	//log.debug(`authorization:${toStr(authorization)}`);
 	if(!authorization) {
-		log.error(`Authorization header missing!`);
+		log.error(`authorization header missing!`);
 		return { status: 401 }; // Unauthorized
 	}
 	if(!authorization.startsWith(AUTHORIZATION_PREFIX)) {
-		log.error(`Invalid Authorization header:${authorization}!`);
+		log.error(`Invalid authorization header:${authorization}!`);
 		return { status: 401 }; // Unauthorized
 	}
 	const apiKey = authorization.substring(AUTHORIZATION_PREFIX.length);
 	//log.debug(`apiKey:${toStr(apiKey)}`);
 	if (!apiKey) {
-		log.error(`ApiKey not found in Authorization header:${authorization}!`);
+		log.error(`ApiKey not found in authorization header:${authorization}!`);
 		return { status: 401 }; // Unauthorized
 	}
 	const hashedApiKey = hash(apiKey);

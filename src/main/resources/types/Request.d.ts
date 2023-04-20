@@ -8,7 +8,7 @@ export type Request<
 	body ?:string
 	headers ?:{
 		Accept ?:string
-		Authorization ?:string
+		authorization ?:string
 	}
 	method ?:string
 	params ?:Params

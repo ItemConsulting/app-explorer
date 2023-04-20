@@ -23,39 +23,35 @@ import {
 import {hash} from '/lib/explorer/string/hash';
 import {connect} from '/lib/explorer/repo/connect';
 import {coerceApiKey} from '../../../services/graphQL/apiKey/coerceApiKey';
+import {safelyGetHeader} from "../../mattilsynetUtils";
 
 
 export type AllDocumentRequest = GetRequest & PostRequest & RemoveRequest;
 
 
-const AUTH_PREFIX = 'Explorer-Api-Key ';
+const AUTH_PREFIX = 'explorer-api-key ';
 
 
 export function all(
 	request :AllDocumentRequest
 ) {
 	//log.info(`request:${toStr(request)}`);
-
-	const {
-		headers: {
-			'Authorization': authorization // 'Explorer-Api-Key XXXX'
-		},
-		method
-	} = request;
+	const authorization = safelyGetHeader(request, 'authorization');
+	const { method} = request;
 	//log.info(`method:${toStr(method)}`);
 
 	if(!authorization) {
-		log.error(`Authorization header missing!`);
+		log.error(`authorization header missing!`);
 		return {status: 401}; // Unauthorized
 	}
 	if(!startsWith(authorization, AUTH_PREFIX)) {
-		log.error(`Invalid Authorization header:${authorization}!`);
+		log.error(`Invalid authorization header:${authorization}!`);
 		return { status: 401 }; // Unauthorized
 	}
 	const apiKey = authorization.substring(AUTH_PREFIX.length);
 	//log.debug(`apiKey:${toStr(apiKey)}`);
 	if (!apiKey) {
-		log.error(`ApiKey not found in Authorization header:${authorization}!`);
+		log.error(`ApiKey not found in authorization header:${authorization}!`);
 		return { status: 401 }; // Unauthorized
 	}
 	const hashedApiKey = hash(apiKey);
