@@ -258,11 +258,11 @@ const extractMattilsynetDocumentToPersist = (
 	};
 };
 
-function removeWhitespace(text: string): string {
+function removeWhitespace(text: string | undefined): string | undefined {
 	return text
-		.replaceAll(/&nbsp;/g, ' ')
-		.replaceAll(/\s+/g, ' ')
-		.trim()
+		?.replaceAll(/&nbsp;/g, ' ')
+		?.replaceAll(/\s+/g, ' ')
+		?.trim()
 }
 
 type MattilsynetWebpageDocument = {
