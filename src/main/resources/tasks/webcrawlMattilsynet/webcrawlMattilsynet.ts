@@ -247,16 +247,23 @@ const extractMattilsynetDocumentToPersist = (
 	return {
 		// displayName: title, // This has no field definition by default
 		links,
-		text: getText(cleanedBodyEl),
+		text: removeWhitespace(getText(cleanedBodyEl)),
 		title,
 		url,
 		headers: {
 			h1: querySelectorAll(cleanedBodyBeforeMattilsynetSpecificElements, 'h1').map(el => getText(el)),
 			h2: querySelectorAll(cleanedBodyBeforeMattilsynetSpecificElements, 'h2').map(el => getText(el)),
 		},
-		intro: getText(querySelector(cleanedBodyBeforeMattilsynetSpecificElements, '.intro'))
+		intro: removeWhitespace(getText(querySelector(cleanedBodyBeforeMattilsynetSpecificElements, '.intro')))
 	};
 };
+
+function removeWhitespace(text: string | undefined): string | undefined {
+	return text
+		?.replaceAll(/&nbsp;/g, ' ')
+		?.replaceAll(/\s+/g, ' ')
+		?.trim()
+}
 
 type MattilsynetWebpageDocument = {
 	// displayName :string
