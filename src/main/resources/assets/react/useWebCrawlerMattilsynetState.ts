@@ -18,6 +18,7 @@ export type CollectorConfigMT = {
 	excludes?: string|string[]
 	excludeSelectors?: string|string[]
 	keepHtml?: boolean
+	followRedirects?: boolean
 	userAgent?: string
 }
 
@@ -63,10 +64,21 @@ export function useWebCrawlerMattilsynetState({
 	const keepHtml = collectorConfig && isSet(collectorConfig.keepHtml)
 		? collectorConfig.keepHtml
 		: false;
+
 	const setKeepHtml = (newKeepHtml: boolean) => setCollectorConfig(prevCollectorConfig => {
 		return {
 			...prevCollectorConfig,
 			keepHtml: newKeepHtml
+		};
+	});
+
+	const followRedirects = collectorConfig && isSet(collectorConfig.followRedirects)
+		? collectorConfig.followRedirects
+		: false;
+	const setFollowRedirects = (newFollowRedirects: boolean) => setCollectorConfig(prevCollectorConfig => {
+		return {
+			...prevCollectorConfig,
+			followRedirects: newFollowRedirects
 		};
 	});
 
@@ -169,9 +181,11 @@ export function useWebCrawlerMattilsynetState({
 		excludesArray,
 		excludeSelectorsArray,
 		keepHtml,
+		followRedirects,
 		setExcludesArray,
 		setExcludeSelectorsArray,
 		setKeepHtml,
+		setFollowRedirects,
 		setUserAgent,
 		userAgent
 	};

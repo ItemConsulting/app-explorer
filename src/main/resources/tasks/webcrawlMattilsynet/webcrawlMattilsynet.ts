@@ -297,6 +297,7 @@ export function run({
 		baseUri: string
 		excludes?: string[]
 		excludeSelectors?: string[]
+		followRedirects?: boolean
 		keepHtml?: boolean
 		resume?: boolean
 		userAgent?: string
@@ -317,6 +318,7 @@ export function run({
 		resume = false,
 		excludes = [],
 		excludeSelectors = [],
+		followRedirects = false,
 		keepHtml = false,
 		userAgent = DEFAULT_UA
 	} = collector.config;
@@ -435,7 +437,7 @@ export function run({
 				}
 				throwIfExcluded(url);
 				const res = httpClientRequest({
-					followRedirects: true, // https://www.enonic.com uses 302
+					followRedirects, // https://www.enonic.com uses 302
 					headers: {
 						'User-Agent': userAgent
 					},
