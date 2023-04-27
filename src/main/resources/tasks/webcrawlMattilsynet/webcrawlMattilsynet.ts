@@ -387,10 +387,15 @@ export function run({
 	}
 
 	function handleNormalizedUri(normalized :string) {
+		const safeIndex = normalized
+			.trim()
+			.replace(/^https?:\/\//, '')
+			.replace(/^www\./, '')
+			.replace(/\/$/, '');
 		if (
-			!seenUrisObj[normalized]
+			!seenUrisObj[safeIndex]
 		) {
-			seenUrisObj[normalized] = true;
+			seenUrisObj[safeIndex] = true;
 			queueArr.push(normalized);
 			collector.taskProgressObj.total += 1;
 		}
