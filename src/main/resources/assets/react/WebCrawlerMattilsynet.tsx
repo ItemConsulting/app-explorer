@@ -36,9 +36,11 @@ export const Collector = React.forwardRef(({
 		excludesArray,
 		excludeSelectorsArray,
 		keepHtml,
+		followRedirects,
 		setExcludesArray,
 		setExcludeSelectorsArray,
 		setKeepHtml,
+		setFollowRedirects,
 		setUserAgent,
 		userAgent
 	} = useWebCrawlerMattilsynetState({
@@ -195,6 +197,11 @@ export const Collector = React.forwardRef(({
 			checked={keepHtml}
 			label='Keep a copy of the HTML source? (not recommended)'
 			onChange={(_event, {checked}) => setKeepHtml(checked)}
+		/>
+		<Form.Checkbox
+			checked={followRedirects}
+			label='Follow redirects?'
+			onChange={(_event, {checked}) => setFollowRedirects(checked)}
 		/>
 		<Form.Input
 			fluid
