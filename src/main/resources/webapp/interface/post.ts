@@ -38,7 +38,7 @@ import {getCachedSchema} from '/lib/explorer/interface/graphql/getCachedSchema';
 export type InterfaceRequest = EnonicXpRequest<EmptyObject>
 
 
-const AUTHORIZATION_PREFIX = 'Explorer-Api-Key ';
+const AUTHORIZATION_PREFIX = 'explorer-api-key ';
 
 
 function isUnauthorized({

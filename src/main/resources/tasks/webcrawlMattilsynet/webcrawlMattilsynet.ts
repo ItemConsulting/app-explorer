@@ -4,11 +4,10 @@ import type {
 	SelectorType,
 	Document
 } from 'cheerio';
-
 import type {
 	HttpClientRequest,
 	Response
-} from '/lib/explorer/types/index.d';
+} from '@enonic-types/lib-explorer';
 
 
 import 'core-js/stable/array/from';
@@ -16,10 +15,9 @@ import 'core-js/stable/object/assign';
 import 'core-js/stable/string/includes';
 import 'core-js/stable/string/from-code-point';
 import 'core-js/stable/string/trim-end';
-import 'core-js/stable/array/includes';
+import 'core-js/stable/array/find';
 import 'core-js/stable/array/find-index';
-// import 'core-js-pure/actual/array/from';
-// import 'core-js-pure/actual/object/assign'; // Doesn't work
+import 'core-js/stable/array/includes';
 // TypeError: Object.getOwnPropertyDescriptors is not a function
 require('object.getownpropertydescriptors').shim(); // eslint-disable-line @typescript-eslint/no-var-requires
 
@@ -33,7 +31,6 @@ require('object.getownpropertydescriptors').shim(); // eslint-disable-line @type
 
 // import 'symbol-es6'; // This does not fix: TypeError: Cannot read property "Symbol" from undefined
 
-require('array.prototype.find').shim(); // eslint-disable-line @typescript-eslint/no-var-requires
 import {
 	// VALUE_TYPE_STRING,
 	forceArray,
@@ -83,15 +80,15 @@ import RobotsException from './RobotsException';
 
 
 type RobotsTxt = {
-	isAllowed :(userAgent :string, path :string) => boolean
-	isDisallowAll :(userAgent :string) => boolean
-	isIndexable :(userAgent :string, path :string) => boolean
+	isAllowed: (userAgent: string, path: string) => boolean
+	isDisallowAll: (userAgent: string) => boolean
+	isIndexable: (userAgent: string, path: string) => boolean
 }
 
 type Url = {
-	getHost :() => string
-	getScheme :() => string
-	normalize :() => string
+	getHost: () => string
+	getScheme: () => string
+	normalize: () => string
 }
 
 
@@ -107,21 +104,21 @@ const DEFAULT_UA = 'Mozilla/5.0 (compatible; Enonic XP Explorer Collector Web cr
 
 
 const querySelector = (
-	node :Cheerio<AnyNode>,
-	selector :SelectorType
+	node: Cheerio<AnyNode>,
+	selector: SelectorType
 ) => cheerio(node.find(selector)[0]);
 
 
 const querySelectorAll = (
-	node :Cheerio<AnyNode>,
-	selector :SelectorType
+	node: Cheerio<AnyNode>,
+	selector: SelectorType
 ) => node.find(selector).toArray()
 	.map((element) => cheerio(element));
 
 
 const getAttributeValue = (
-	node :Cheerio<AnyNode>,
-	name :string
+	node: Cheerio<AnyNode>,
+	name: string
 ) => {
 	const attributeValue = node.attr(name);
 
@@ -134,8 +131,8 @@ const getAttributeValue = (
 };
 
 const remove = (
-	node :Cheerio<AnyNode>,
-	selector :SelectorType
+	node: Cheerio<AnyNode>,
+	selector: SelectorType
 ) => {
 	const elsToRemove = querySelectorAll(node, selector);
 	elsToRemove.forEach((elToRemove) => {
@@ -155,7 +152,7 @@ const removeMattilsynetSpecificElements = (cleanedBodyEl: Cheerio<AnyNode>, excl
 }
 
 const removeDisplayNoneAndVisibilityHidden = (
-	node :Cheerio<AnyNode>
+	node: Cheerio<AnyNode>
 ) => {
 	const elsWithStyleAttribute = querySelectorAll(node, '[style]');
 	for (let i = 0; i < elsWithStyleAttribute.length; i++) {
@@ -329,7 +326,7 @@ export function run({
 
 	// Galimatias
 	if (!baseUri.includes('://')) { baseUri = `https://${baseUri}`;}
-	const entryPointUrlObj :Url = new URL(baseUri);
+	const entryPointUrlObj: Url = new URL(baseUri);
 
 	const normalizedentryPointUrl = entryPointUrlObj.normalize();
 	DEBUG && log.debug('normalizedentryPointUrl:%s', normalizedentryPointUrl);
@@ -354,14 +351,14 @@ export function run({
 	const scheme = entryPointUrlObj.scheme;
 	*/
 
-	const robotsReq :HttpClientRequest = {
+	const robotsReq: HttpClientRequest = {
 		contentType: 'text/plain',
 		followRedirects: false,
-		headers: {
-			'Accept': 'text/plain',
-			'Accept-Charset': 'utf-8, iso-8859-1;q=0.5, *;q=0.1',
-			'Accept-Encoding': 'identity', // Fix for  ID1ID2: actual != expected
-			'User-Agent': userAgent
+		headers: { // HTTP/2 uses lowercase header keys
+			'accept': 'text/plain',
+			'accept-charset': 'utf-8, iso-8859-1;q=0.5, *;q=0.1',
+			'accept-encoding': 'identity', // Fix for  ID1ID2: actual != expected
+			'user-agent': userAgent
 		},
 		method: 'GET',
 		url: `${scheme}://${domain}/robots.txt`
@@ -369,7 +366,7 @@ export function run({
 	DEBUG && log.debug('robotsReq:%s', toStr(robotsReq));
 
 	const robotsRes = httpClientRequest(robotsReq) as Response; // log.debug(toStr({robotsRes}));
-	let robots :RobotsTxt;
+	let robots: RobotsTxt;
 	if(robotsRes.status === 200 && robotsRes.contentType === 'text/plain') {
 		robots = guard(parseRobotsTxt(robotsRes.body));
 	}
@@ -378,7 +375,7 @@ export function run({
 	const seenUrisObj = {[normalizedentryPointUrl]: true};
 	const queueArr = [normalizedentryPointUrl];
 
-	function throwIfExcluded(normalized :string) {
+	function throwIfExcluded(normalized: string) {
 		for (let i = 0; i < excludeRegExps.length; i += 1) {
 			if (excludeRegExps[i].test(normalized)) {
 				throw new RobotsException(normalized, 'Matches an exclude regexp!');
@@ -386,7 +383,7 @@ export function run({
 		}
 	}
 
-	function handleNormalizedUri(normalized :string) {
+	function handleNormalizedUri(normalized: string) {
 		const safeIndex = normalized
 			.trim()
 			.replace(/^https?:\/\//, '')
@@ -442,9 +439,9 @@ export function run({
 				}
 				throwIfExcluded(url);
 				const res = httpClientRequest({
-					followRedirects, // https://www.enonic.com uses 302
-					headers: {
-						'User-Agent': userAgent
+					followRedirects: true, // https://www.enonic.com uses 302
+					headers: { // HTTP/2 uses lowercase header keys
+						'user-agent': userAgent
 					},
 					url
 				}) as Response; TRACE && log.debug('res:%s', toStr(res));
@@ -699,8 +696,8 @@ export function run({
 				const {id} = res.hits[i];
 
 				const node = collector.collection.connection.get<{
-					_path :string
-					url :string
+					_path: string
+					url: string
 				}>(id);
 				// log.debug('node:%s', toStr(node));
 

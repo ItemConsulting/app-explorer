@@ -49,18 +49,20 @@ function getHighlightedHtml({
 	fragmentSize: number
 }) {
 	const lcFieldPath = fieldPath.toLowerCase();
-	let highlightedHtml = _highlight[lcFieldPath]
-		? _highlight[lcFieldPath][0]
-		: _highlight[`${lcFieldPath}._stemmed_en`] // TODO Hardcode
-			? _highlight[`${lcFieldPath}._stemmed_en`][0]
-			: _highlight[`${lcFieldPath}._stemmed_no`]
-				? _highlight[`${lcFieldPath}._stemmed_no`][0]
-				: isString(fallback)
-					? fallback.length > fragmentSize
-						? `${fallback.substring(0, fragmentSize)}${ELLIPSIS}`
+	let highlightedHtml = _highlight
+		? _highlight[lcFieldPath]
+			? _highlight[lcFieldPath][0]
+			: _highlight[`${lcFieldPath}._stemmed_en`] // TODO Hardcode
+				? _highlight[`${lcFieldPath}._stemmed_en`][0]
+				: _highlight[`${lcFieldPath}._stemmed_no`]
+					? _highlight[`${lcFieldPath}._stemmed_no`][0]
+					: isString(fallback)
+						? fallback.length > fragmentSize
+							? `${fallback.substring(0, fragmentSize)}${ELLIPSIS}`
+							: fallback
 						: fallback
-					: fallback;
-	const strippedHighlight = highlightedHtml.replace(new RegExp(PRE_TAG,'g'), '').replace(new RegExp(POST_TAG,'g'), '');
+		: fallback;
+	const strippedHighlight = highlightedHtml?.replace(new RegExp(PRE_TAG,'g'), '')?.replace(new RegExp(POST_TAG,'g'), '');
 	if (
 		strippedHighlight !== fallback
 	) {
@@ -181,8 +183,7 @@ function DocumentsTable({
 						{documentsRes.hits.map(({
 							_highlight = {},
 							_id,
-							// _json,
-							parsedJson,
+						 	_json,
 							...rest
 						}, i) => {
 							return <Table.Row key={i}>
@@ -212,7 +213,7 @@ function DocumentsTable({
 														setJsonModalState({
 															open: true,
 															header: _id,
-															parsedJson: parsedJson,// || rest['_json'], // Can't fallback to string, when the type should be object
+															parsedJson: _json as any,// || rest['_json'], // Can't fallback to string, when the type should be object
 														})
 													}}
 													style={{
@@ -247,7 +248,7 @@ function DocumentsTable({
 										} else if (!SELECTED_COLUMNS_DEFAULT.includes(selectedColumnName as Column)) {
 											const htmlString = getHighlightedHtml({
 												_highlight,
-												fallback: getIn(parsedJson, selectedColumnName),
+												fallback: String(getIn(_json, selectedColumnName)),
 												fieldPath: selectedColumnName,
 												fragmentSize,
 											});
