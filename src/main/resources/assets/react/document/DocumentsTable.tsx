@@ -49,18 +49,20 @@ function getHighlightedHtml({
 	fragmentSize: number
 }) {
 	const lcFieldPath = fieldPath.toLowerCase();
-	let highlightedHtml = _highlight[lcFieldPath]
-		? _highlight[lcFieldPath][0]
-		: _highlight[`${lcFieldPath}._stemmed_en`] // TODO Hardcode
-			? _highlight[`${lcFieldPath}._stemmed_en`][0]
-			: _highlight[`${lcFieldPath}._stemmed_no`]
-				? _highlight[`${lcFieldPath}._stemmed_no`][0]
-				: isString(fallback)
-					? fallback.length > fragmentSize
-						? `${fallback.substring(0, fragmentSize)}${ELLIPSIS}`
+	let highlightedHtml = _highlight
+		? _highlight[lcFieldPath]
+			? _highlight[lcFieldPath][0]
+			: _highlight[`${lcFieldPath}._stemmed_en`] // TODO Hardcode
+				? _highlight[`${lcFieldPath}._stemmed_en`][0]
+				: _highlight[`${lcFieldPath}._stemmed_no`]
+					? _highlight[`${lcFieldPath}._stemmed_no`][0]
+					: isString(fallback)
+						? fallback.length > fragmentSize
+							? `${fallback.substring(0, fragmentSize)}${ELLIPSIS}`
+							: fallback
 						: fallback
-					: fallback;
-	const strippedHighlight = highlightedHtml.replace(new RegExp(PRE_TAG,'g'), '').replace(new RegExp(POST_TAG,'g'), '');
+		: fallback;
+	const strippedHighlight = highlightedHtml?.replace(new RegExp(PRE_TAG,'g'), '')?.replace(new RegExp(POST_TAG,'g'), '');
 	if (
 		strippedHighlight !== fallback
 	) {
