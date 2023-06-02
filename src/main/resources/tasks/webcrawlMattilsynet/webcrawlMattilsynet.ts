@@ -214,7 +214,8 @@ function getText(node?: Cheerio<AnyNode>): string | undefined {
 const extractMattilsynetDocumentToPersist = (
 	rootNode: Cheerio<Document>,
 	excludeSelectors: Array<string>,
-	links: Array<string>, url: string
+	links: Array<string>,
+	url: string
 ): MattilsynetWebpageDocument => {
 	const headEl = querySelector(rootNode, 'head');
 	const title = getText(querySelector(headEl, 'title'))?.split('|')[0].trim() ?? '';
@@ -244,15 +245,22 @@ const extractMattilsynetDocumentToPersist = (
 
 	const cleanedBodyBeforeMattilsynetSpecificElements = cleanedBodyEl.clone();
 	removeMattilsynetSpecificElements(cleanedBodyEl, excludeSelectors);
+
+	const getHeaders = (selector: "h1" | "h2"): string[] | undefined => {
+		const headers = querySelectorAll(cleanedBodyBeforeMattilsynetSpecificElements, selector)
+			.map(el => getText(el))
+			.filter(el => el)
+		return headers.length > 0 ? headers : undefined
+	}
 	return {
 		// displayName: title, // This has no field definition by default
-		links,
+		links: links.length > 0 ? links : undefined,
 		text: removeWhitespace(getText(cleanedBodyEl)),
 		title,
 		url,
 		headers: {
-			h1: querySelectorAll(cleanedBodyBeforeMattilsynetSpecificElements, 'h1').map(el => getText(el)),
-			h2: querySelectorAll(cleanedBodyBeforeMattilsynetSpecificElements, 'h2').map(el => getText(el)),
+			h1: getHeaders("h1"),
+			h2: getHeaders('h2'),
 		},
 		intro: removeWhitespace(getText(querySelector(cleanedBodyBeforeMattilsynetSpecificElements, '.intro')))
 	};
