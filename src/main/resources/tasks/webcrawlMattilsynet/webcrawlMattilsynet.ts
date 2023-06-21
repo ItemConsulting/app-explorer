@@ -33,7 +33,7 @@ require('object.getownpropertydescriptors').shim(); // eslint-disable-line @type
 
 // import 'symbol-es6'; // This does not fix: TypeError: Cannot read property "Symbol" from undefined
 
-require('array.prototype.find').shim(); // eslint-disable-line @typescript-eslint/no-var-requires
+//require('array.prototype.find').shim(); // eslint-disable-line @typescript-eslint/no-var-requires
 import {
 	// VALUE_TYPE_STRING,
 	forceArray,
@@ -300,7 +300,7 @@ export function run({
 	// log.debug('webcrawl: configJson:%s', configJson);
 	// log.debug('webcrawl: language:%s', language);
 	// log.debug('webcrawl: name:%s', name);
-
+	log.info('OK WE WEB WEBCRAWL: collectionId:%s', collectionId);
 	const collector = new Collector<{
 		baseUri: string
 		excludes?: string[]
@@ -318,7 +318,7 @@ export function run({
 	});
 	if (!collector.config.baseUri) { throw new Error('Config is missing required parameter baseUri!'); }
 	collector.start();
-
+	log.info('collector started')
 	let {
 		baseUri
 	} = collector.config;
